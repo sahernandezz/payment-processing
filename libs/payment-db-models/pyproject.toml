@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "payment-db-models"
+version = "0.1.0"
+description = "Shared SQLAlchemy models and migrations for internal services"
+requires-python = ">=3.12"
+dependencies = [
+    "sqlalchemy>=2.0.30",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["payment_db_models*"]
+
+[tool.setuptools.package-data]
+payment_db_models = ["alembic/sql/*.sql", "alembic/*.mako"]
