@@ -22,21 +22,31 @@ dependencias apuntan siempre hacia adentro, hacia el dominio. El núcleo no sabe
 FastAPI, Postgres ni Redis, de modo que las reglas de negocio se prueban y evolucionan sin
 acoplarse a la tecnología.
 
+```mermaid
+flowchart TB
+    subgraph L4["api/ — detalles de transporte (HTTP)"]
+        direction TB
+        api["Routers · schemas Pydantic · auth + RBAC · manejo de errores"]
+        subgraph L3["infrastructure/ — detalles de I/O"]
+            direction TB
+            infra["Repositorios SQLAlchemy · Unit of Work · Redis · JWT · metricas"]
+            subgraph L2["application/ — casos de uso"]
+                direction TB
+                app["PaymentService · MerchantService · AuthService · ReconciliationService"]
+                subgraph L1["domain/ — nucleo de negocio"]
+                    dom["Money · maquina de estados · errores · permisos"]
+                end
+            end
+        end
+    end
+
+    api -.->|depende de| infra
+    infra -.->|depende de| app
+    app -.->|depende de| dom
 ```
-      ┌──────────────────────────────────────────────┐
-      │  api/           Routers, schemas, auth+RBAC  │  ← detalles (HTTP)
-      │  ┌────────────────────────────────────────┐  │
-      │  │ infrastructure/  Repos, UoW, Redis, JWT │  │  ← detalles (I/O)
-      │  │  ┌──────────────────────────────────┐   │  │
-      │  │  │ application/   Casos de uso       │   │  │
-      │  │  │  ┌────────────────────────────┐   │   │  │
-      │  │  │  │ domain/  Money, máquina de │   │   │  │  ← núcleo
-      │  │  │  │ estados, errores, permisos │   │   │  │
-      │  │  │  └────────────────────────────┘   │   │  │
-      │  │  └──────────────────────────────────┘   │  │
-      │  └────────────────────────────────────────┘  │
-      └──────────────────────────────────────────────┘
-```
+
+Las dependencias siempre apuntan **hacia adentro**: cada capa conoce a la que envuelve, nunca al
+revés. El núcleo (`domain/`) no sabe que existen FastAPI, PostgreSQL ni Redis.
 
 | Capa | Responsabilidad | De qué **no** depende |
 | --- | --- | --- |
