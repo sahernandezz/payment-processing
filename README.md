@@ -767,21 +767,3 @@ funcionalidad completa se revierte con un solo *revert* del *merge*.
 | 🔖 | `release` | Versión etiquetada |
 
 Ejemplo: `✨ feat(payments): idempotencia por restricción única y manejo de conflicto`
-
-## Supuestos
-
-- La recuperación de contraseña queda fuera del alcance funcional (no hay servicio de correo); el
-  flujo de autenticación se centra en registro, login y rotación de sesión.
-- La moneda se restringe a `COP`.
-- La API Key de servicio se aprovisiona por seed; no hay endpoint de gestión.
-- Un usuario registrado recibe el rol `OPERATOR`; la asignación de otros roles se hace por seed o
-  base de datos.
-
-## Limitaciones
-
-- El worker de Celery corre con `--pool=solo` únicamente para que sus métricas queden en el mismo
-  proceso; no es un límite de escalado (con `FOR UPDATE SKIP LOCKED` es seguro correr N workers).
-  En producción se usaría el pool `prefork`.
-- El scheduler debe desplegarse como réplica única, o con un lock distribuido tipo RedBeat.
-- No hay integración con una pasarela real: el cambio de estado es manual o por conciliación.
-- La gestión de roles, permisos y API Keys no tiene endpoints de administración.
