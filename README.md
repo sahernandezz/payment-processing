@@ -616,6 +616,21 @@ Los errores usan un formato uniforme:
 { "error": { "code": "INVALID_PAYMENT_STATUS", "message": "..." } }
 ```
 
+Los códigos HTTP se usan con intención, distinguiendo *petición mal formada* de *petición válida
+que incumple una regla*:
+
+| Código | Cuándo | Código de error |
+| --- | --- | --- |
+| `200` | Consulta o actualización correcta | — |
+| `201` | Recurso creado (también en el *replay* idempotente) | — |
+| `400` | El cuerpo no es JSON válido: la petición no se puede ni interpretar | `MALFORMED_REQUEST` |
+| `401` | Sin credenciales, o sesión revocada/expirada | `AUTHENTICATION_REQUIRED`, `SESSION_EXPIRED` |
+| `403` | Autenticado, pero sin el permiso necesario | `PERMISSION_DENIED` |
+| `404` | El comercio o el pago no existe | `MERCHANT_NOT_FOUND`, `PAYMENT_NOT_FOUND` |
+| `409` | Choque con un recurso existente | `DUPLICATE_EXTERNAL_REFERENCE`, `DUPLICATE_MERCHANT` |
+| `422` | JSON bien formado pero inválido: importe ≤ 0, correo mal escrito, medio de pago inexistente o transición no permitida | `VALIDATION_ERROR`, `INVALID_PAYMENT_STATUS` |
+| `500` | Error no controlado; nunca expone detalles internos | `INTERNAL_SERVER_ERROR` |
+
 ### Documentación interactiva
 
 Swagger UI: http://localhost:8000/docs · OpenAPI JSON: http://localhost:8000/openapi.json
