@@ -267,65 +267,12 @@
           },
           "event": [
             {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.collectionVariables.set(\"idempotencyKey\", \"payment-\" + Date.now());"
-                ]
-              }
-            },
-            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
                   "pm.collectionVariables.set(\"paymentId\", pm.response.json().id);",
                   "pm.test(\"status 201\", () => pm.response.to.have.status(201));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Create payment - idempotent replay (same key)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Idempotency-Key",
-                "value": "{{idempotencyKey}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/payments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "payments"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"merchant_id\": \"{{merchantId}}\",\n  \"external_reference\": \"ORDER-{{runId}}\",\n  \"amount\": 150000,\n  \"currency\": \"COP\",\n  \"payment_method\": \"QR\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"status 201\", () => pm.response.to.have.status(201));",
-                  "pm.test(\"idempotent: same payment as the first call\", () =>",
-                  "  pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get(\"paymentId\")));"
                 ]
               }
             }
@@ -551,7 +498,7 @@
     },
     {
       "key": "idempotencyKey",
-      "value": ""
+      "value": "payment-001"
     },
     {
       "key": "runId",

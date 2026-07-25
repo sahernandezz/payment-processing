@@ -622,7 +622,7 @@ que incumple una regla*:
 | Código | Cuándo | Código de error |
 | --- | --- | --- |
 | `200` | Consulta o actualización correcta | — |
-| `201` | Recurso creado (también en el *replay* idempotente) | — |
+| `201` | Recurso creado (también al reintentar con la misma `Idempotency-Key`) | — |
 | `400` | El cuerpo no es JSON válido: la petición no se puede ni interpretar | `MALFORMED_REQUEST` |
 | `401` | Sin credenciales, o sesión revocada/expirada | `AUTHENTICATION_REQUIRED`, `SESSION_EXPIRED` |
 | `403` | Autenticado, pero sin el permiso necesario | `PERMISSION_DENIED` |
@@ -650,10 +650,12 @@ En [`docs/postman/`](docs/postman/) está la colección lista para importar
 3. **Merchants → Create merchant** y **Payments → Create payment** guardan `merchantId` y
    `paymentId`, de modo que las demás peticiones funcionan sin copiar UUID a mano.
 
-Incluye el caso de *replay* con la misma `Idempotency-Key` —con una aserción que comprueba que
-devuelve el mismo pago— y una consulta autenticada con API Key. La colección es re-ejecutable:
-genera identificadores únicos por corrida, así que puede lanzarse varias veces contra la misma
-base de datos.
+Incluye también una consulta autenticada con API Key, para probar el escenario
+servicio-a-servicio.
+
+**Para demostrar la idempotencia** basta con enviar **dos veces** la petición *Create payment*: la
+llave `Idempotency-Key` es fija (`payment-001`), así que la segunda respuesta devuelve el mismo
+`id` que la primera en lugar de crear un pago nuevo.
 
 ```bash
 npx newman run docs/postman/payment-processing.postman_collection.json

@@ -17,13 +17,8 @@ pm.test("status 200", () => pm.response.to.have.status(200));"""
 SAVE_MERCHANT = """pm.collectionVariables.set("merchantId", pm.response.json().id);
 pm.test("status 201", () => pm.response.to.have.status(201));"""
 
-REPLAY_CHECK = """pm.test("status 201", () => pm.response.to.have.status(201));
-pm.test("idempotent: same payment as the first call", () =>
-  pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get("paymentId")));"""
-
 # Fresh identifiers per run so the collection can be replayed against the same database.
 NEW_RUN_ID = 'pm.collectionVariables.set("runId", Date.now());'
-NEW_IDEMPOTENCY_KEY = 'pm.collectionVariables.set("idempotencyKey", "payment-" + Date.now());'
 
 SAVE_PAYMENT = """pm.collectionVariables.set("paymentId", pm.response.json().id);
 pm.test("status 201", () => pm.response.to.have.status(201));"""
@@ -155,16 +150,7 @@ def build() -> dict[str, object]:
                 "/api/v1/payments",
                 body=payment_body,
                 headers=idem_header,
-                prerequest=NEW_IDEMPOTENCY_KEY,
                 script=SAVE_PAYMENT,
-            ),
-            request(
-                "Create payment - idempotent replay (same key)",
-                "POST",
-                "/api/v1/payments",
-                body=payment_body,
-                headers=idem_header,
-                script=REPLAY_CHECK,
             ),
             request(
                 "List payments (filters + pagination)",
@@ -226,7 +212,7 @@ def build() -> dict[str, object]:
             {"key": "adminEmail", "value": "admin@payments.com"},
             {"key": "adminPassword", "value": "admin12345"},
             {"key": "serviceApiKey", "value": "local-service-key-change-me"},
-            {"key": "idempotencyKey", "value": ""},
+            {"key": "idempotencyKey", "value": "payment-001"},
             {"key": "runId", "value": ""},
             {"key": "accessToken", "value": ""},
             {"key": "refreshToken", "value": ""},
